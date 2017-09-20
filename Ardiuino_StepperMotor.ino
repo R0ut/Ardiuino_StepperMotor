@@ -1,66 +1,29 @@
-//511 to wtedy mam 360 stopni 
-//krok to +/- 0.7045 stopnia 14 kroków to skok co 9,86 stopni
+//ardiuno used pins
+const int s1 = 0;
+const int s2 = 1;
+const int s3 = 2;
+const int s4 = 3;
 
+int del = 0; // delay between single mottor step
 
-const int s1 = 8;
-const int s2 = 9;
-const int s3 = 10;
-const int s4 = 11;
-int del = 5000;
-int teller = 0;
-int chose = 0;
-int stepp = 0;
 void setup() {                
   pinMode(s1, OUTPUT);     
   pinMode(s2, OUTPUT);     
   pinMode(s3, OUTPUT);     
   pinMode(s4, OUTPUT);
- 
 
+  Serial.begin(463611);
+  Serial.setTimeout(0);
 }
 
 void loop() {
-  
-  del = 3000; // delay im mniejszy tym szybciej sie wykona obrot
-  //900 max szybko
-  menu();
-  Serial.flush(); 
-  while(!Serial.available()) ; 
-  stepp = Serial.parseInt();
-  
-  
-  information();
-  for (int i=0; i<=stepp; i++){
-       if(chose == 1) forwards();
-       else if(chose == 2) backwards();
-  //   forwardsFull();
-  //   backwardsFull();
-  };
-  
-  motorOff();
-  delay(10);  
+  while(!Serial.available()); //Wait for data from PC
+  del = Serial.readString().toInt(); //Sets delay recived from PC
+  forwards(); //Execute one step forward 
+  Serial.println(1); //Send data to PC through serial
 }
 
-void menu(){
-  Serial.print("\nMenu\n");
-  Serial.print("1.Prawo\n");
-  Serial.print("2.Lewo\n");
-  Serial.print(">>");
-  while(!Serial.available());
-  chose = Serial.parseInt();
-  Serial.print("\n Jaka wartosc obrotu?(14=10 stopni)");
-}
-
-void information()
-{
-  Serial.print("\n\nWybrales opcje nr ");
-  Serial.print(chose);
-  Serial.print(" silnik obroci sie o ");
-  double radius = stepp * 0.7045;
-  Serial.print(radius);
-  Serial.print(" stopni");
-}
-
+//Sets stepper engine current position
 void motorOff(){
   digitalWrite(s1, LOW); 
   digitalWrite(s2, LOW); 
@@ -68,6 +31,7 @@ void motorOff(){
   digitalWrite(s4, LOW); 
 }
 
+//Backwards step
 void backwards(){
 
   digitalWrite(s1, HIGH); 
@@ -117,11 +81,9 @@ void backwards(){
   digitalWrite(s3, LOW); 
   digitalWrite(s4, HIGH); 
   delayMicroseconds(del);              
-
-
 }
 
-
+//Forwards step
 void forwards(){
 
   digitalWrite(s1, HIGH); 
@@ -170,10 +132,10 @@ void forwards(){
   digitalWrite(s2, LOW); 
   digitalWrite(s3, LOW); 
   digitalWrite(s4, LOW); 
-  delayMicroseconds(del);              
-  
+  delayMicroseconds(del);               
 }
 
+//Full backward step
 void backwardsFull(){
 
   digitalWrite(s1, HIGH); 
@@ -199,9 +161,9 @@ void backwardsFull(){
   digitalWrite(s3, LOW); 
   digitalWrite(s4, HIGH); 
   delayMicroseconds(del*2);              
-
 }
 
+//Full forward step
 void forwardsFull(){
 
   digitalWrite(s1, LOW); 
@@ -227,7 +189,6 @@ void forwardsFull(){
   digitalWrite(s3, LOW); 
   digitalWrite(s4, LOW); 
   delayMicroseconds(del*2);              
-
 }
 
 
